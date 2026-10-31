@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { hasConfiguredSupabase } from "@/lib/env";
+import { hasConfiguredSupabase, SUPABASE_KEY, SUPABASE_URL } from "@/lib/env";
 
 /**
  * GET /api/health: uptime probe. 200 when the function and Supabase answer, 503 otherwise.
@@ -15,8 +15,8 @@ export async function GET() {
   if (hasConfiguredSupabase()) {
     const started = Date.now();
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/health`, {
-        headers: { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! },
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/health`, {
+        headers: { apikey: SUPABASE_KEY },
         cache: "no-store"
       });
       db = res.ok ? "ok" : "error";

@@ -1,6 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { hasConfiguredSupabase } from "@/lib/env";
+import { hasConfiguredSupabase, SUPABASE_KEY, SUPABASE_URL } from "@/lib/env";
 
 /** Public paths: decided before any Supabase work, so they never cost an auth round trip. */
 function isPublicPath(pathname: string): boolean {
@@ -16,22 +16,18 @@ export async function middleware(request: NextRequest) {
   // Cookies go out TOGETHER (getAll / setAll) on ONE response. Per-cookie handlers rebuilt the response for
   // each cookie, so a session saved in two chunks reached the browser as the last chunk only, and every
   // request then refreshed the token again (and could get the session revoked). Never go back to them.
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
-        }
+  const supabase = createServerClient(SUPABASE_URL, SUPABASE_KEY, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+        response = NextResponse.next({ request });
+        cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
       }
     }
-  );
+  });
 
   // getSession() reads the cookie (network only to refresh an expired token). It only decides redirects:
   // every row a page shows is still gated by RLS on a signature-checked JWT.

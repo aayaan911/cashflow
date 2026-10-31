@@ -1,3 +1,4 @@
+import { SUPABASE_KEY, SUPABASE_URL } from "@/lib/env";
 import { cache } from "react";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
@@ -65,8 +66,8 @@ function loggedFetch(): typeof fetch {
 export const createClient = cache(function createClient() {
   const cookieStore = cookies();
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    SUPABASE_URL,
+    SUPABASE_KEY,
     {
       ...(QUERY_LOG ? { global: { fetch: loggedFetch() } } : null),
       cookies: {
