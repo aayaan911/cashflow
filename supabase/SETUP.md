@@ -2,7 +2,7 @@
 
 CIFLOW has its OWN Supabase project. Never point it at the KinBird project.
 
-1. supabase.com, New project. Name `ciflow`. Region: **Singapore (ap-southeast-1)** (closest to Dhaka).
+1. supabase.com, New project. Name `ciflow`. Region: **South Asia (Mumbai, ap-south-1)**, closest to Dhaka. `vercel.json` pins functions to `bom1` (Mumbai) to match: a function far from its database made KinBird login take 30-40s. Move both together or neither.
    Strong database password, saved in a password manager.
 2. Project Settings, API: copy **Project URL** and the **anon / publishable key** into `.env.local`
    and into Vercel (Production + Preview). Never copy the service_role key anywhere public.
