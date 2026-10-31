@@ -1,0 +1,15 @@
+# Build output and dependencies
+.next
+node_modules
+out
+# Hand-authored static marketing site and generated data
+public
+supabase
+docs
+tmp
+scripts/*.py
+*.md
+package-lock.json
+.vercel
+coverage
+.claude
