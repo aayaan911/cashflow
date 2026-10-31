@@ -1,5 +1,5 @@
 /** Product name and public origin. One place, so a rename or a custom domain is one edit. */
-export const APP_NAME = "CIFLOW";
+export const APP_NAME = "Cashflow";
 export const APP_TAGLINE = "Private Financial Intelligence";
 
 /**

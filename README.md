@@ -1,6 +1,6 @@
-# CIFLOW
+# Cashflow
 
-**Private Financial Intelligence.** CIF (cifra, financial intelligence) + FLOW (cash flow, money movement).
+**Private Financial Intelligence.** Where your money comes from, where it goes, and what is next.
 
 Built on the design system and app shell of KinBird Pro (colours, fonts, layout, sidebar, sign-in), with none of
 its bird code or data.
@@ -9,7 +9,7 @@ its bird code or data.
 
 ```bash
 npm install
-cp .env.example .env.local   # then paste CIFLOW's own Supabase URL and anon key
+cp .env.example .env.local   # then paste Cashflow's own Supabase URL and anon key
 npm run dev                  # http://localhost:3000
 ```
 

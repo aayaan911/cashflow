@@ -1,6 +1,6 @@
-# CIFLOW: Claude Code operating manual
+# Cashflow: Claude Code operating manual
 
-**CIFLOW, Private Financial Intelligence.** A personal-finance app for Ayaan and friends first, then Play Store and
+**Cashflow, Private Financial Intelligence.** A personal-finance app for Ayaan and friends first, then Play Store and
 App Store (free or about $1/month). Owner: Ayaan Ahmed Shohan. Premium feel is a requirement, not a polish pass.
 
 Started 2026-10-31 from KinBird Pro's shell (`aayaan911/kinbird-pro-app`, untouched): design tokens, fonts,

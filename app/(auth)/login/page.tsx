@@ -61,7 +61,7 @@ type SearchParams = {
 };
 
 const TITLES: Record<Mode, string> = {
-  signin: "Sign in to CIFLOW",
+  signin: "Sign in to Cashflow",
   signup: "Create your account",
   link: "Email me a sign-in link",
   phone: "Sign in with your phone",
@@ -260,7 +260,7 @@ export default function LoginPage({ searchParams }: { searchParams?: SearchParam
           <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[hsl(var(--primary-fill))] text-[hsl(var(--primary-foreground))] shadow-[var(--shadow-1)]">
             <TrendingUp className="h-6 w-6" aria-hidden />
           </span>
-          <span className="text-[15px] font-semibold tracking-tight text-foreground">CIFLOW</span>
+          <span className="text-[15px] font-semibold tracking-tight text-foreground">Cashflow</span>
         </Link>
 
         <section className="mt-6 w-full max-w-[400px] rounded-2xl border border-border bg-card px-5 py-7 sm:px-8 sm:py-8 shadow-[var(--shadow-1)]">
