@@ -20,15 +20,15 @@ export function phoneOtpChannel(): PhoneOtpChannel | null {
 
 /**
  * "Continue with Google" stays OFF until the Google provider is switched on in Supabase
- * (Authentication → Sign In / Providers → Google; steps in docs/GOOGLE-SIGN-IN-SETUP.md).
+ * (Authentication → Sign In / Providers → Google).
  * Set NEXT_PUBLIC_GOOGLE_AUTH=1 in .env.local and in Vercel to show the button. While it is unset
  * the button is not rendered at all, so nobody taps a sign-in that cannot finish (hard rule 2).
  * next.config.js reads the same variable to let the button's form post leave the site.
  */
 export function googleAuthEnabled(): boolean {
-  // On since 2026-10-05: the Google provider is enabled in Supabase. NEXT_PUBLIC_GOOGLE_AUTH=0 hides the button.
-  const value = (process.env.NEXT_PUBLIC_GOOGLE_AUTH ?? "1").trim().toLowerCase();
-  return value !== "0" && value !== "false";
+  // Off unless explicitly "1": the Google provider is not configured in Cashflow's Supabase project yet.
+  const value = (process.env.NEXT_PUBLIC_GOOGLE_AUTH ?? "").trim().toLowerCase();
+  return value === "1" || value === "true";
 }
 
 export const PASSWORD_MIN_LENGTH = 8;

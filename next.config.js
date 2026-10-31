@@ -34,7 +34,7 @@ module.exports = {
   },
   async headers() {
     const dev = process.env.NODE_ENV !== "production";
-    const googleAuth = !["0", "false"].includes((process.env.NEXT_PUBLIC_GOOGLE_AUTH ?? "1").trim().toLowerCase());
+    const googleAuth = ["1", "true"].includes((process.env.NEXT_PUBLIC_GOOGLE_AUTH ?? "").trim().toLowerCase());
     // Content-Security-Policy: no script or connection can leave this origin plus the Supabase project.
     // Adding a third-party script, font or image host means adding it here first.
     const csp = [
