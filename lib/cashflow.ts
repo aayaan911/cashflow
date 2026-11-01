@@ -205,39 +205,53 @@ const TX_COLS =
   "id,kind,occurred_on,name,note,amount_minor,currency,amount_bdt_minor,fx_rate,category_id,account_id,source,recurring_id";
 
 /** Every live transaction, newest first. A personal ledger is a few thousand rows at most. */
+/**
+ * Supabase returns at most 1,000 rows per request. Read the first page with an exact count, then every other
+ * page at once, so years of history cost two round trips, not one per thousand rows.
+ */
+const PAGE = 1000;
+async function readAll(table: "transactions" | "transfers", cols: string): Promise<Record<string, unknown>[]> {
+  const query = (withCount: boolean) =>
+    createClient()
+      .from(table)
+      .select(cols, withCount ? { count: "exact" } : undefined)
+      .is("deleted_at", null)
+      .order("occurred_on", { ascending: false })
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: true });
+  const first = await query(true).range(0, PAGE - 1);
+  const rows = (first.data ?? []) as unknown as Record<string, unknown>[];
+  const total = first.count ?? rows.length;
+  if (total <= PAGE) return rows;
+  const rest = await Promise.all(
+    Array.from({ length: Math.ceil(total / PAGE) - 1 }, (_, i) =>
+      query(false).range((i + 1) * PAGE, (i + 2) * PAGE - 1)
+    )
+  );
+  return rows.concat(...rest.map((r) => (r.data ?? []) as unknown as Record<string, unknown>[]));
+}
+
 export const getAllTx = cache(async (): Promise<Tx[]> => {
-  const { data } = await createClient()
-    .from("transactions")
-    .select(TX_COLS)
-    .is("deleted_at", null)
-    .order("occurred_on", { ascending: false })
-    .order("created_at", { ascending: false })
-    .limit(5000);
-  return (data ?? []).map((r) => mapTx(r as Record<string, unknown>));
+  return (await readAll("transactions", TX_COLS)).map((r) => mapTx(r));
 });
 
 export const getTransfers = cache(async (): Promise<Transfer[]> => {
-  const { data } = await createClient()
-    .from("transfers")
-    .select(
-      "id,occurred_on,from_account_id,to_account_id,sent_minor,sent_currency,received_minor,received_currency,fee_minor,rate,note"
-    )
-    .is("deleted_at", null)
-    .order("occurred_on", { ascending: false })
-    .order("created_at", { ascending: false })
-    .limit(2000);
-  return (data ?? []).map((r) => ({
-    id: r.id,
-    on: r.occurred_on,
-    fromId: r.from_account_id,
-    toId: r.to_account_id,
+  const data = await readAll(
+    "transfers",
+    "id,occurred_on,from_account_id,to_account_id,sent_minor,sent_currency,received_minor,received_currency,fee_minor,rate,note"
+  );
+  return data.map((r) => ({
+    id: r.id as string,
+    on: r.occurred_on as string,
+    fromId: r.from_account_id as string | null,
+    toId: r.to_account_id as string | null,
     sentMinor: n(r.sent_minor),
-    sentCurrency: r.sent_currency,
+    sentCurrency: r.sent_currency as Currency,
     receivedMinor: n(r.received_minor),
-    receivedCurrency: r.received_currency,
+    receivedCurrency: r.received_currency as Currency,
     feeMinor: n(r.fee_minor),
     rate: nOrNull(r.rate),
-    note: r.note
+    note: r.note as string | null
   }));
 });
 
