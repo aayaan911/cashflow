@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { BarChart3, CalendarDays, Plus, Users } from "lucide-react";
+import { BarChart3, CalendarDays, CalendarRange, Plus, Users } from "lucide-react";
 import { PageTitle } from "@/components/page-title";
 import { topbarAddClass } from "@/components/topbar";
 import { Page, Chip, LinkTabs, MonthChips, Bar, Card, Empty } from "@/components/cashflow/shell";
 import { TxTable } from "@/components/cashflow/tx-table";
 import { AddTx } from "@/components/cashflow/add-tx";
 import { FirstRun } from "@/components/cashflow/first-run";
+import { EachYear } from "@/components/cashflow/each-year";
 import { getLedger } from "@/lib/ledger";
 import { inMonth, monthLabel, monthShort, resolveMonth, shiftMonth, sumBdt, type Tx } from "@/lib/cashflow";
 import { dollars, pct, taka, takaCompact } from "@/lib/money";
@@ -18,7 +19,10 @@ type Search = { m?: string; cat?: string; view?: string };
 export default async function IncomePage({ searchParams }: { searchParams?: Search }) {
   const ledger = await getLedger();
   const month = resolveMonth(searchParams?.m);
-  const view = searchParams?.view === "months" || searchParams?.view === "sources" ? searchParams.view : "month";
+  const view =
+    searchParams?.view === "months" || searchParams?.view === "years" || searchParams?.view === "sources"
+      ? searchParams.view
+      : "month";
   const catFilter = searchParams?.cat ?? "";
   const income = ledger.tx.filter((t) => t.kind === "income");
   const thisMonth = inMonth(income, month) as Tx[];
@@ -64,6 +68,7 @@ export default async function IncomePage({ searchParams }: { searchParams?: Sear
         tabs={[
           { href: base, label: "This month", icon: <CalendarDays className="h-3.5 w-3.5" /> },
           { href: `${base}&view=months`, label: "Each month", icon: <BarChart3 className="h-3.5 w-3.5" /> },
+          { href: `${base}&view=years`, label: "Each year", icon: <CalendarRange className="h-3.5 w-3.5" /> },
           { href: `${base}&view=sources`, label: "By source", icon: <Users className="h-3.5 w-3.5" /> }
         ]}
       />
@@ -106,6 +111,7 @@ export default async function IncomePage({ searchParams }: { searchParams?: Sear
         </>
       )}
       {view === "months" && <EachMonth income={income} month={month} />}
+      {view === "years" && <EachYear rows={income} kind="income" ledger={ledger} base="/income" />}
       {view === "sources" && (
         <Card
           title="By source"

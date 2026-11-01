@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { CalendarDays, BarChart3, PieChart, Plus, Repeat } from "lucide-react";
+import { CalendarDays, CalendarRange, BarChart3, PieChart, Plus, Repeat } from "lucide-react";
 import { PageTitle } from "@/components/page-title";
 import { topbarAddClass } from "@/components/topbar";
 import { Page, Chip, LinkTabs, MonthChips, Bar, usedTone, Card, Empty } from "@/components/cashflow/shell";
 import { TxTable } from "@/components/cashflow/tx-table";
 import { AddTx } from "@/components/cashflow/add-tx";
 import { FirstRun } from "@/components/cashflow/first-run";
+import { EachYear } from "@/components/cashflow/each-year";
 import { CatIcon } from "@/components/cashflow/category-icon";
 import { getLedger } from "@/lib/ledger";
 import { inMonth, monthLabel, monthShort, resolveMonth, shiftMonth, sumBdt, type Tx } from "@/lib/cashflow";
@@ -23,7 +24,10 @@ type Search = { m?: string; cat?: string; view?: string };
 export default async function ExpensesPage({ searchParams }: { searchParams?: Search }) {
   const ledger = await getLedger();
   const month = resolveMonth(searchParams?.m);
-  const view = searchParams?.view === "months" || searchParams?.view === "categories" ? searchParams.view : "month";
+  const view =
+    searchParams?.view === "months" || searchParams?.view === "years" || searchParams?.view === "categories"
+      ? searchParams.view
+      : "month";
   const catFilter = searchParams?.cat ?? "";
   const expenses = ledger.tx.filter((t) => t.kind === "expense");
   const thisMonth = inMonth(expenses, month) as Tx[];
@@ -70,6 +74,7 @@ export default async function ExpensesPage({ searchParams }: { searchParams?: Se
         tabs={[
           { href: base, label: "This month", icon: <CalendarDays className="h-3.5 w-3.5" /> },
           { href: `${base}&view=months`, label: "Each month", icon: <BarChart3 className="h-3.5 w-3.5" /> },
+          { href: `${base}&view=years`, label: "Each year", icon: <CalendarRange className="h-3.5 w-3.5" /> },
           { href: `${base}&view=categories`, label: "By category", icon: <PieChart className="h-3.5 w-3.5" /> },
           { href: "/recurring", label: "Recurring", icon: <Repeat className="h-3.5 w-3.5" /> }
         ]}
@@ -125,6 +130,7 @@ export default async function ExpensesPage({ searchParams }: { searchParams?: Se
         </>
       )}
       {view === "months" && <EachMonth expenses={expenses} month={month} />}
+      {view === "years" && <EachYear rows={expenses} kind="expense" ledger={ledger} base="/expenses" />}
       {view === "categories" && (
         <Card
           title={`By category, ${monthLabel(month)}`}
