@@ -11,3 +11,4 @@ out/
 
 # Import scratch, DB backups and session tokens — never commit
 tmp/
+.claude/settings.local.json
