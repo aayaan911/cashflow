@@ -29,9 +29,8 @@ Supabase (its own project, see `supabase/SETUP.md`), npm. Server Components + Se
   database is not in Mumbai (300 ms a query from `bom1`); recreating it in Mumbai is the one speed fix that matters. Every page read is one round trip (`getLedger` plus the page's own reads in one `Promise.all`,
   `budgetsFor(month, getLedger())`), and every write action starts its auth check and lookups together.
 - Money is stored as integer minor units (paisa / cents), never floats.
-- Notion Finance 25 / 26 import: `supabase/manual-run/002_notion_import_2025_2026.sql` (re-runnable, keyed by
-  `notion_url`), report `docs/NOTION-IMPORT-2026-11-01.md`, generator `scripts/notion-import-gen.py`. Rows with no amount
-  are skipped and listed, never guessed; income lands on an account only where Notion's notes name it.
+- Notion import (Finance 21 to 26) is DONE and live, keyed by `import_ref` = `notion:<page id>` (`003_import_ref.sql`).
+  `002_notion_import_2025_2026.sql` is superseded and refuses to run; never run both, it would double 2025 and 2026.
 - Middleware writes all session cookies on ONE response (getAll / setAll). Never go back to per-cookie handlers.
 - Never commit `.env.local`, the service_role key or tokens. No em-dashes in user-visible copy.
 - `app/globals.css` still carries KinBird's page-specific classes (`kb-room-*`, `npk-*`, `iso-*` ...); prune
