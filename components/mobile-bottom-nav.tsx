@@ -16,8 +16,15 @@ export function MobileBottomNav() {
   const pathname = usePathname() ?? "/";
   if (pathname.startsWith("/auth") || FORM_ROUTE.test(pathname)) return null;
   const seg = pathname === "/" ? "/" : "/" + pathname.split("/")[1];
+  // Five thumb tabs: the four pages a phone opens most, then Settings. The rest stay one tap away on the sidebar
+  // pages themselves (Dashboard links to every section).
+  const all = GROUPS.flatMap((g) => g.items);
+  const pick = (href: string) => all.find((i) => i.href === href)!;
   const tabs = [
-    ...GROUPS.flatMap((g) => g.items),
+    pick("/"),
+    pick("/transactions"),
+    pick("/expenses"),
+    pick("/budgets"),
     { href: "/settings", label: "Settings", hint: "Account", icon: Settings }
   ];
 

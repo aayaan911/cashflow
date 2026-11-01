@@ -8,7 +8,26 @@ import { cn, shortDate } from "@/lib/utils";
 import { NAV_KEYS } from "@/components/keyboard-shortcuts";
 import type { AccountProfile } from "@/lib/data";
 import { APP_NAME, APP_TAGLINE } from "@/lib/site";
-import { LayoutDashboard, Moon, PanelLeft, Settings, Sun, TrendingUp } from "lucide-react";
+import {
+  ArrowDownLeft,
+  ArrowLeftRight,
+  ArrowUpRight,
+  BarChart3,
+  CalendarDays,
+  HandCoins,
+  LayoutDashboard,
+  ListOrdered,
+  Moon,
+  PanelLeft,
+  PiggyBank,
+  Repeat,
+  Settings,
+  Sun,
+  Tag,
+  Target,
+  TrendingUp,
+  Wallet
+} from "lucide-react";
 
 export interface NavItem {
   href: string;
@@ -25,7 +44,36 @@ export interface NavItem {
 export const GROUPS: { title: string; items: NavItem[] }[] = [
   {
     title: "Today",
-    items: [{ href: "/", label: "Overview", hint: "Where your money stands", icon: LayoutDashboard }]
+    items: [
+      { href: "/", label: "Dashboard", hint: "Where your money stands", icon: LayoutDashboard },
+      { href: "/calendar", label: "Calendar", hint: "Bills and income by day", icon: CalendarDays },
+      { href: "/stats", label: "Stats", hint: "Earned, spent and kept", icon: BarChart3 }
+    ]
+  },
+  {
+    title: "Money",
+    items: [
+      { href: "/transactions", label: "Transactions", hint: "Every entry", icon: ListOrdered },
+      { href: "/income", label: "Income", hint: "Money in", icon: ArrowDownLeft },
+      { href: "/expenses", label: "Expenses", hint: "Money out", icon: ArrowUpRight },
+      { href: "/transfers", label: "Transfers", hint: "Between your accounts", icon: ArrowLeftRight },
+      { href: "/savings", label: "Savings", hint: "Goals and deposits", icon: PiggyBank }
+    ]
+  },
+  {
+    title: "Plan",
+    items: [
+      { href: "/budgets", label: "Budgets", hint: "Monthly limits", icon: Target },
+      { href: "/recurring", label: "Recurring", hint: "Bills and retainers", icon: Repeat },
+      { href: "/debts", label: "Debts", hint: "Lent and borrowed", icon: HandCoins }
+    ]
+  },
+  {
+    title: "Setup",
+    items: [
+      { href: "/accounts", label: "Accounts", hint: "Banks, wallets, cash", icon: Wallet },
+      { href: "/categories", label: "Categories", hint: "Kinds of income and expense", icon: Tag }
+    ]
   }
 ];
 

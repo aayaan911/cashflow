@@ -9,6 +9,18 @@ import { useTheme } from "next-themes";
  */
 export const NAV_KEYS: Record<string, string> = {
   "/": "D",
+  "/calendar": "C",
+  "/stats": "V",
+  "/transactions": "L",
+  "/income": "I",
+  "/expenses": "E",
+  "/transfers": "F",
+  "/savings": "G",
+  "/budgets": "B",
+  "/recurring": "R",
+  "/debts": "O",
+  "/accounts": "A",
+  "/categories": "K",
   "/settings": "S"
 };
 
