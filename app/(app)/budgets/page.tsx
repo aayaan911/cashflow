@@ -23,9 +23,8 @@ export const metadata = { title: "Budgets" };
  * on each row saves for this month and, by default, becomes the category's limit for later months too.
  */
 export default async function BudgetsPage({ searchParams }: { searchParams?: { m?: string } }) {
-  const ledger = await getLedger();
   const month = resolveMonth(searchParams?.m);
-  const lines = await budgetsFor(month, ledger);
+  const [ledger, lines] = await Promise.all([getLedger(), budgetsFor(month, getLedger())]);
   const limit = lines.reduce((s, b) => s + b.limitMinor, 0);
   const spent = lines.reduce((s, b) => s + b.spentMinor, 0);
   const sorted = [...lines].sort(

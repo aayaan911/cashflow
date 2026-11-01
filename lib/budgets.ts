@@ -22,8 +22,9 @@ const getMonthOverrides = cache(async (month: string) => {
 });
 
 /** One line per expense category for a month: limit, spent, with the category default as the fallback. */
-export async function budgetsFor(month: string, ledger: Ledger): Promise<BudgetLine[]> {
-  const overrides = await getMonthOverrides(month);
+export async function budgetsFor(month: string, ledgerIn: Ledger | Promise<Ledger>): Promise<BudgetLine[]> {
+  // Both reads start together: awaiting the ledger first cost the dashboard one extra database round trip.
+  const [overrides, ledger] = await Promise.all([getMonthOverrides(month), ledgerIn]);
   const spent = new Map<string, number>();
   for (const t of inMonth(ledger.tx, month) as Tx[])
     if (t.kind === "expense" && t.categoryId) spent.set(t.categoryId, (spent.get(t.categoryId) ?? 0) + t.bdtMinor);

@@ -33,16 +33,18 @@ export const metadata = { title: "Dashboard" };
  * and what is coming up from the recurring list.
  */
 export default async function DashboardPage() {
-  const [profile, ledger, recurring, debts, { goals }] = await Promise.all([
+  const today = todayLocalISO();
+  const month = monthOf(today);
+  // Every read of the page starts here, together: one database round trip, not two.
+  const [profile, ledger, recurring, debts, { goals }, budgets] = await Promise.all([
     getAccountProfile(),
     getLedger(),
     getRecurring(),
     getDebts(),
-    getGoals()
+    getGoals(),
+    budgetsFor(month, getLedger())
   ]);
   const first = profile?.fullName?.split(/\s+/)[0];
-  const today = todayLocalISO();
-  const month = monthOf(today);
   const hour = Number(
     new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: "Asia/Dhaka" }).format(new Date())
   );
@@ -54,7 +56,6 @@ export default async function DashboardPage() {
   const earned = sumBdt(thisMonth, "income");
   const lastMonthSpent = sumBdt(inMonth(ledger.tx, shiftMonth(month, -1)) as Tx[], "expense");
   const lastMonthEarned = sumBdt(inMonth(ledger.tx, shiftMonth(month, -1)) as Tx[], "income");
-  const budgets = await budgetsFor(month, ledger);
   const budgetTotal = budgets.reduce((s, b) => s + b.limitMinor, 0);
   const daysLeft =
     daysBetweenLocal(today, `${month}-${new Date(Number(month.slice(0, 4)), Number(month.slice(5)), 0).getDate()}`) ??

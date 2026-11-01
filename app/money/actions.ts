@@ -54,7 +54,6 @@ export async function seedDefaults(formData: FormData) {
 /* ───────────── transactions ───────────── */
 
 export async function addTransaction(formData: FormData) {
-  await requireUser();
   const kind = clean(formData.get("kind")) === "income" ? "income" : "expense";
   const name = clean(formData.get("name"));
   const on = clean(formData.get("occurred_on")) || todayLocalISO();
@@ -65,13 +64,16 @@ export async function addTransaction(formData: FormData) {
 
   const supabase = createClient();
   const accountId = opt(formData.get("account_id"));
-  let currency: Currency = "BDT";
-  if (accountId) {
-    const { data: acct } = await supabase.from("accounts").select("currency").eq("id", accountId).maybeSingle();
-    currency = (acct?.currency as Currency) ?? "BDT";
-  }
+  // The sign-in check, the account lookup and the last USD rate run together: three serial round trips to the
+  // database became one. RLS still gates every row, so a signed-out call reads nothing before it is redirected.
+  const [, acctRes, transfers] = await Promise.all([
+    requireUser(),
+    accountId ? supabase.from("accounts").select("currency").eq("id", accountId).maybeSingle() : null,
+    getTransfers()
+  ]);
+  const currency: Currency = (acctRes?.data?.currency as Currency | undefined) ?? "BDT";
   const rateInput = Number(clean(formData.get("fx_rate")));
-  const rate = currency === "USD" ? (rateInput > 0 ? rateInput : latestUsdRate(await getTransfers())) : null;
+  const rate = currency === "USD" ? (rateInput > 0 ? rateInput : latestUsdRate(transfers)) : null;
   const { error } = await supabase.from("transactions").insert({
     kind,
     occurred_on: on,
@@ -113,7 +115,6 @@ export async function deleteTransaction(formData: FormData) {
 /* ───────────── transfers ───────────── */
 
 export async function addTransfer(formData: FormData) {
-  await requireUser();
   const on = clean(formData.get("occurred_on")) || todayLocalISO();
   const fromId = opt(formData.get("from_account_id"));
   const toId = opt(formData.get("to_account_id"));
@@ -123,7 +124,10 @@ export async function addTransfer(formData: FormData) {
   if (!sent) back(formData, "Enter the amount sent.", "error");
 
   const supabase = createClient();
-  const { data: accts } = await supabase.from("accounts").select("id,currency").in("id", [fromId, toId]);
+  const [, { data: accts }] = await Promise.all([
+    requireUser(),
+    supabase.from("accounts").select("id,currency").in("id", [fromId, toId])
+  ]);
   const cur = (id: string) => (accts?.find((a) => a.id === id)?.currency as Currency) ?? "BDT";
   const sentCur = cur(fromId);
   const recvCur = cur(toId);

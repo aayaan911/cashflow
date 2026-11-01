@@ -25,6 +25,9 @@ Supabase (its own project, see `supabase/SETUP.md`), npm. Server Components + Se
   `components/sidebar.tsx`).
 - Every table: RLS on, owner policy `(select auth.uid()) = owner_id`, `deleted_at` soft delete, write the
   `.sql` into `supabase/manual-run/` first.
+- The Vercel function region in `vercel.json` must match the Supabase project region (`supabase/SETUP.md`). Today
+  both are US East. Every page read is one round trip (`getLedger` plus the page's own reads in one `Promise.all`,
+  `budgetsFor(month, getLedger())`), and every write action starts its auth check and lookups together.
 - Money is stored as integer minor units (paisa / cents), never floats.
 - Middleware writes all session cookies on ONE response (getAll / setAll). Never go back to per-cookie handlers.
 - Never commit `.env.local`, the service_role key or tokens. No em-dashes in user-visible copy.
