@@ -8,7 +8,7 @@ Started 2026-10-31 from KinBird Pro's shell (`aayaan911/kinbird-pro-app`, untouc
 fresh git history.
 
 ## Scope (Ayaan, 2026-10-31, non-negotiable)
-Work ONLY on Cashflow: GitHub `aayaan911/cashflow`, Vercel project `kin-bird/cashflow` (prod: `cashflow.ranksells.com`; the old vercel.app domains 307 to it), Supabase project `cashflow`
+Work ONLY on Cashflow: GitHub `aayaan911/cashflow`, Vercel project `kin-bird/cashflow` (prod: `cashflow.ranksells.com`, an A record to 76.76.21.21 at Hostinger: Bangladeshi ISPs time out on the CNAME target IPs; the old vercel.app domains also serve the app), Supabase project `cashflow`
 `znqxbjukyrhzxeqlfcrg`. Never read, write, deploy, redeploy, roll back or change settings on any other repo,
 Vercel project or Supabase project, KinBird Pro included, even when a token could. Every API call names
 Cashflow's own project id. If a task seems to need another project, stop and ask.
