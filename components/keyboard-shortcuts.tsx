@@ -11,6 +11,7 @@ export const NAV_KEYS: Record<string, string> = {
   "/": "D",
   "/calendar": "C",
   "/stats": "V",
+  "/decisions": "X",
   "/transactions": "L",
   "/income": "I",
   "/expenses": "E",

@@ -1,5 +1,18 @@
 import Link from "next/link";
-import { ArrowDownLeft, Globe, HandCoins, Plus, Repeat, Target } from "lucide-react";
+import {
+  ArrowDownLeft,
+  Bird,
+  Globe,
+  HandCoins,
+  Lightbulb,
+  PieChart,
+  Plus,
+  Repeat,
+  Target,
+  TrendingUp,
+  Trophy,
+  Users
+} from "lucide-react";
 import { PageTitle } from "@/components/page-title";
 import { topbarAddClass } from "@/components/topbar";
 import { KpiStrip } from "@/components/kpi-strip";
@@ -22,6 +35,8 @@ import {
   type Tx
 } from "@/lib/cashflow";
 import { budgetsFor } from "@/lib/budgets";
+import { buildInsights } from "@/lib/insights";
+import { InsightAlerts } from "@/components/cashflow/insight-alerts";
 import { dollars, pct, taka, takaCompact } from "@/lib/money";
 import { cn, daysBetweenLocal, plural, shortDate, todayLocalISO } from "@/lib/utils";
 
@@ -80,6 +95,67 @@ export default async function DashboardPage() {
   const expenseSeries = months.map((m) => sumBdt(inMonth(ledger.tx, m) as Tx[], "expense"));
   const max = Math.max(1, ...incomeSeries, ...expenseSeries);
   const kept = incomeSeries.reduce((a, b) => a + b, 0) - expenseSeries.reduce((a, b) => a + b, 0);
+
+  // What the ledger says, as sentences: the same numbers as /decisions, one line each, only when backed.
+  const insight = buildInsights(ledger, today);
+  const lessons: {
+    icon: React.ReactNode;
+    tone: "amber" | "red" | "info" | "green";
+    title: string;
+    line: string;
+    href: string;
+  }[] = [];
+  if (insight.spent12 > 0) {
+    const two = insight.leaks.slice(0, 2);
+    lessons.push({
+      icon: <PieChart className="h-[15px] w-[15px]" />,
+      tone: "info",
+      title: `You spend about ${takaCompact(insight.avgBurn)} a month`,
+      line: two.length
+        ? `${two.map((l) => l.name).join(" and ")} take ${pct(
+            two.reduce((t, l) => t + l.last, 0),
+            insight.spent12
+          )}% of the last 12 months.`
+        : "Average of the last 12 months.",
+      href: "/decisions"
+    });
+  }
+  const riser = insight.leaks.find((l) => l.growth !== null && l.growth > 0.25 && l.last >= insight.spent12 * 0.03);
+  if (riser)
+    lessons.push({
+      icon: <TrendingUp className="h-[15px] w-[15px]" />,
+      tone: "red",
+      title: `${riser.name} is up ${Math.round((riser.growth ?? 0) * 100)}% on the year before`,
+      line: `${takaCompact(riser.last)} in the last 12 months against ${takaCompact(riser.prior)}.`,
+      href: "/decisions"
+    });
+  if (insight.bestYear && insight.bestYear.kept > 0)
+    lessons.push({
+      icon: <Trophy className="h-[15px] w-[15px]" />,
+      tone: "green",
+      title: `${insight.bestYear.year} was your best year`,
+      line: `You kept ${takaCompact(insight.bestYear.kept)}${insight.bestYear.keepRate !== null ? `, ${Math.round(insight.bestYear.keepRate * 100)}% of income` : ""}.`,
+      href: "/decisions"
+    });
+  if (insight.topShare && insight.topShare.share >= 0.4)
+    lessons.push({
+      icon: <Users className="h-[15px] w-[15px]" />,
+      tone: insight.topShare.share > 0.6 ? "red" : "amber",
+      title: `${insight.topShare.name} paid ${Math.round(insight.topShare.share * 100)}% of ${insight.topShare.year} income`,
+      line: "One client carrying most of the year is a risk. A second steady source halves it.",
+      href: "/decisions"
+    });
+  if (insight.bird.allSpend > 0)
+    lessons.push({
+      icon: <Bird className="h-[15px] w-[15px]" />,
+      tone: insight.bird.allIncome < insight.bird.allSpend ? "amber" : "green",
+      title: `Birds: ${takaCompact(insight.bird.allSpend)} spent, ${takaCompact(insight.bird.allIncome)} logged back`,
+      line:
+        insight.bird.allIncome < insight.bird.allSpend * 0.1
+          ? "Bird sales are mostly not in the app yet, so this reads as a loss."
+          : `Net ${takaCompact(insight.bird.allIncome - insight.bird.allSpend)} on the books.`,
+      href: "/decisions"
+    });
 
   const upcoming = recurring
     .filter((r) => r.active)
@@ -310,6 +386,34 @@ export default async function DashboardPage() {
           }
         ]}
       />
+      {!empty && lessons.length > 0 && (
+        <Card
+          title="What your data says"
+          sub="Lessons from every year you have logged. Open Decisions for the full picture."
+          action={
+            <Link href="/decisions" className={chipClass}>
+              <Lightbulb className="h-3.5 w-3.5" /> Decisions ›
+            </Link>
+          }
+        >
+          <InsightAlerts alerts={insight.alerts.slice(0, 2)} className="mb-2" />
+          <div className="grid gap-x-6 lg:grid-cols-2">
+            {lessons.map((l) => (
+              <Row
+                key={l.title}
+                icon={<Tile tone={l.tone}>{l.icon}</Tile>}
+                title={l.title}
+                line={l.line}
+                action={
+                  <Link href={l.href} className="text-[13px] font-semibold text-[hsl(var(--primary-dark))]">
+                    See ›
+                  </Link>
+                }
+              />
+            ))}
+          </div>
+        </Card>
+      )}
       <div className="grid gap-3.5 sm:gap-[18px] lg:grid-cols-[1.45fr_1fr]">
         <Card
           title="Income vs spending"

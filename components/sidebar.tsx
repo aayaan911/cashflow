@@ -16,6 +16,7 @@ import {
   CalendarDays,
   HandCoins,
   LayoutDashboard,
+  Lightbulb,
   ListOrdered,
   Moon,
   PanelLeft,
@@ -47,7 +48,8 @@ export const GROUPS: { title: string; items: NavItem[] }[] = [
     items: [
       { href: "/", label: "Dashboard", hint: "Where your money stands", icon: LayoutDashboard },
       { href: "/calendar", label: "Calendar", hint: "Bills and income by day", icon: CalendarDays },
-      { href: "/stats", label: "Stats", hint: "Earned, spent and kept", icon: BarChart3 }
+      { href: "/stats", label: "Stats", hint: "Earned, spent and kept", icon: BarChart3 },
+      { href: "/decisions", label: "Decisions", hint: "What your data says to do", icon: Lightbulb }
     ]
   },
   {
