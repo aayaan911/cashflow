@@ -90,7 +90,7 @@ export function PairBars({
 /** One bar per column around a zero line: kept money up in green, a loss down in red. */
 export function SignedBars({
   points,
-  height = 200,
+  height = 230,
   label
 }: {
   points: { key: string; label: string; value: number; href?: string }[];
@@ -103,12 +103,10 @@ export function SignedBars({
   const upPct = (up / span) * 100;
   return (
     <div role="img" aria-label={label} className="relative" style={{ height }}>
-      <div
-        className="absolute inset-x-0 border-t border-dashed border-border"
-        style={{ top: `${upPct}%` }}
-        aria-hidden
-      />
-      <div className="absolute inset-0 flex gap-2">
+      <div className="absolute inset-x-0 bottom-5 top-5" aria-hidden>
+        <div className="absolute inset-x-0 border-t border-dashed border-border" style={{ top: `${upPct}%` }} />
+      </div>
+      <div className="absolute inset-x-0 bottom-5 top-5 flex gap-2">
         {points.map((p) => {
           const h = (Math.abs(p.value) / span) * 100;
           const pos = p.value >= 0;

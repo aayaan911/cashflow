@@ -89,7 +89,13 @@ export function buildInsights(ledger: Ledger, today: string): Insights {
   const years = [...new Set([...yInc.keys(), ...ySp.keys()])].sort().map((year) => {
     const income = yInc.get(year) ?? 0;
     const spend = ySp.get(year) ?? 0;
-    return { year, income, spend, kept: income - spend, keepRate: income ? (income - spend) / income : null };
+    return {
+      year,
+      income,
+      spend,
+      kept: income - spend,
+      keepRate: income >= spend * 0.25 ? (income - spend) / income : null
+    };
   });
   const bestYear = years.length ? years.reduce((a, b) => (b.kept > a.kept ? b : a)) : null;
 
@@ -197,17 +203,17 @@ export function buildInsights(ledger: Ledger, today: string): Insights {
         href: "/income"
       });
   }
-  for (const a of ledger.accounts) {
-    if (a.archived) continue;
-    const bal = ledger.balances.get(a.id) ?? 0;
-    if (bal < 0)
-      alerts.push({
-        tone: "amber",
-        title: `${a.name} shows a negative balance`,
-        line: "Money moved into this account was never logged as a transfer, so net worth reads wrong.",
-        href: "/transfers"
-      });
-  }
+  const negative = ledger.accounts.filter((a) => !a.archived && (ledger.balances.get(a.id) ?? 0) < 0);
+  if (negative.length)
+    alerts.push({
+      tone: "amber",
+      title:
+        negative.length === 1
+          ? `${negative[0].name} shows a negative balance`
+          : `${negative.length} accounts show a negative balance`,
+      line: `${negative.map((a) => a.name).join(", ")}: money moved in was never logged as a transfer or opening balance, so net worth reads wrong.`,
+      href: "/accounts"
+    });
   if (allSpend > 0 && allIncome < allSpend * 0.1)
     alerts.push({
       tone: "amber",
